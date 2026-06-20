@@ -106,9 +106,10 @@ skip-string-normalization = true
 build-frontend = "build"
 archs = ["native"]
 # pye3d only needs header-only Eigen at build time (installed per-platform in
-# before-all). Python floor (>=3.10) comes from requires-python; musllinux is
-# skipped because before-all uses yum, not apk.
-skip = "pp* *-musllinux*"
+# before-all). Python floor (>=3.10) comes from requires-python. Skip:
+# musllinux (before-all uses yum, not apk) and free-threaded CPython (cp3??t-*,
+# which can't use the stable ABI and lacks SciPy/etc. test wheels).
+skip = "*-musllinux* cp3??t-*"
 manylinux-x86_64-image = "manylinux2014"
 
 # OpenCV (+ friends) are only needed to run the test suite. The test input is
@@ -127,6 +128,10 @@ before-all = "yum install -y eigen3-devel"
 
 [tool.cibuildwheel.macos]
 before-all = "brew install eigen"
+# Homebrew's prefix isn't on CMake's default search path, so find_package(Eigen3)
+# can't see the brewed Eigen. Cover both Apple-silicon (/opt/homebrew) and
+# Intel (/usr/local) runners.
+environment = { CMAKE_PREFIX_PATH = "/opt/homebrew:/usr/local" }
 
 [tool.cibuildwheel.windows]
 before-all = "choco install eigen -y"

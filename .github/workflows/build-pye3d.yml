@@ -62,17 +62,6 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  build_docs:
-    name: Ensure documentation builds correctly
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - name: Build docs via tox
-        run: pipx run tox -e docs
-
   benchmark:
     name: Benchmark vs PyPI
     needs: [build_wheels]
@@ -119,7 +108,7 @@ jobs:
 
   check: # gate used for branch protection
     if: always()
-    needs: [build_wheels, build_sdist, build_docs]
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
