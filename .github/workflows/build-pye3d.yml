@@ -90,7 +90,9 @@ jobs:
         run: |
           python -m venv .venv-built
           .venv-built/bin/pip install --upgrade pip
-          .venv-built/bin/pip install numpy opencv-python-headless scikit-image
+          # pye3d runtime deps (msgpack, numpy, sortedcontainers) + bench deps
+          # (opencv, scikit-image); the wheel itself is installed --no-deps below.
+          .venv-built/bin/pip install numpy msgpack sortedcontainers opencv-python-headless scikit-image
           .venv-built/bin/pip install --no-index --no-deps --find-links wheelhouse pye3d
           .venv-built/bin/python bench/ci_bench.py --input input.npz --out built.json
 
