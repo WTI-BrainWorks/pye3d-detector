@@ -110,12 +110,14 @@ archs = ["native"]
 # musllinux (before-all uses yum, not apk) and free-threaded CPython (cp3??t-*,
 # which can't use the stable ABI and lacks SciPy/etc. test wheels).
 skip = "*-musllinux* cp3??t-*"
-manylinux-x86_64-image = "manylinux2014"
+# manylinux_2_28, not the EOL manylinux2014: the heavy test deps (numpy 2.x,
+# scipy, pandas) dropped manylinux2014 and only ship manylinux_2_28 wheels, so
+# in the older container pip rebuilds them from source and scipy fails (no
+# OpenBLAS).
+manylinux-x86_64-image = "manylinux_2_28"
 
-# Don't run the test suite on 3.14 yet: its heavy test deps (scikit-image ->
-# scipy) have no cp314 manylinux wheel, so pip falls back to building scipy from
-# source and fails (no OpenBLAS). The abi3 wheel that covers 3.14 is already
-# exercised on 3.11-3.13; drop this once scipy ships 3.14 wheels.
+# Still skip the 3.14 test: scipy/scikit-image cp314 wheels may lag. The abi3
+# wheel that covers 3.14 is already exercised on 3.11-3.13; drop once they ship.
 test-skip = "cp314-*"
 
 # OpenCV (+ friends) are only needed to run the test suite. The test input is
@@ -130,7 +132,8 @@ test-requires = [
 test-command = "curl -L https://github.com/pupil-labs/pye3d-detector/wiki/files/pye3d_test_input.npz --silent --output {package}/tests/integration/input/pye3d_test_input.npz && pytest {package}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y eigen3-devel"
+# eigen3-devel lives in EPEL on the AlmaLinux 8-based manylinux_2_28 image.
+before-all = ["yum install -y epel-release", "yum install -y eigen3-devel"]
 
 [tool.cibuildwheel.macos]
 before-all = "brew install eigen"
