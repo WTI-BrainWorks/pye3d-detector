@@ -112,6 +112,12 @@ archs = ["native"]
 skip = "*-musllinux* cp3??t-*"
 manylinux-x86_64-image = "manylinux2014"
 
+# Don't run the test suite on 3.14 yet: its heavy test deps (scikit-image ->
+# scipy) have no cp314 manylinux wheel, so pip falls back to building scipy from
+# source and fails (no OpenBLAS). The abi3 wheel that covers 3.14 is already
+# exercised on 3.11-3.13; drop this once scipy ships 3.14 wheels.
+test-skip = "cp314-*"
+
 # OpenCV (+ friends) are only needed to run the test suite. The test input is
 # fetched from the project wiki at test time.
 test-requires = [

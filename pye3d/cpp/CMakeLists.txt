@@ -18,7 +18,11 @@ endif()
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module Development.SABIModule)
 find_package(Cython MODULE REQUIRED VERSION 3.0)
 include(UseCython)
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+# No version pin: Eigen's config declares cross-major versions incompatible, so
+# requesting "3.3" rejects Homebrew's Eigen 5.x. The code builds across the
+# Eigen versions the CI package managers ship (manylinux yum 3.3, brew 5.x), and
+# we link the Eigen3::Eigen target (not the EIGEN3_INCLUDE_DIRS var Eigen 5 drops).
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 # scikit-build-core sets SKBUILD_SABI_VERSION (from wheel.py-api) only for abi3
 # builds (CPython 3.11+ here); on 3.10 it is unset and we build a normal
